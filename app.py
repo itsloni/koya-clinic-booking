@@ -18,6 +18,18 @@ def get_slots():
         "slots": slots
     })
 
+@app.route("/reset", methods=["POST"])
+def reset_slots():
+    data = request.get_json()
+
+    if not data or "slots" not in data:
+        return jsonify({"error" : "slots data is required"}), 400
+
+    bookings.clear()
+    slots[:] = data["slots"]
+    return jsonify({"success" : "Slots have been reset to your New data"})
+
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
