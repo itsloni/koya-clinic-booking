@@ -4,7 +4,7 @@ app = Flask(__name__)
 API_KEY = "loni-secret-api-key-123"
 slots = []
 bookings = []
-idempotency = {}
+idempotency_keys = {}
 
 def require_api_key():
     key = request.headers.get("X-API-key")
@@ -63,7 +63,8 @@ def input_bookings():
     auth_error = require_api_key()
     if auth_error:
         return auth_error
-
+    idempotency_key = request.headers.get("idempotency-key")
+    if data in idempotency_keys
     data = request.get_json()
 
     if (not data or
@@ -133,7 +134,9 @@ def email_bookings():
     for booking in bookings:
         if booking["email"] == email:
             email_list.append(booking)
+    if not email_list:
         return jsonify({"error" : "email does not exist"}), 404
+
     return jsonify({"email owned bookings" : email_list}), 200
 
 
