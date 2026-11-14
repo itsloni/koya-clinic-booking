@@ -14,9 +14,21 @@ def home():
 
 @app.route("/slots", methods=["GET"])
 def get_slots():
-    return jsonify({
-        "slots": slots
-    })
+    result = []
+
+    for slot in slots:
+        is_available = True
+
+        for booking in bookings:
+            if slot["id"] == booking["slot_id"] and booking["status"] == "confirmed":
+                is_available = False
+                break
+
+        slot_copy = slot.copy()
+        slot_copy["available"] = is_available
+        result.append(slot_copy)
+
+    return jsonify({"slots" : result})
 
 @app.route("/reset", methods=["POST"])
 def reset_slots():
@@ -39,21 +51,31 @@ def input_bookings():
 
     for slot in slots:
         if data["slot_id"] == slot["id"]:
+
+            for booking in bookings:
+
+                if booking["slot_id"] == data["slot_id"] and booking["status"] == "confirmed":
+                    return jsonify({"error": "slot already taken"}), 409
             new_booking = {
-                "user_id" : f"User_{len(bookings) + 1}",
+                "id" : f"User_{len(bookings) + 1}",
                 "slot_id" : data["slot_id"],
                 "name" : data["name"],
                 "email" : data["email"],
                 "status" : "confirmed",
                 "created_at" : datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             }
+
             bookings.append(new_booking)
             return jsonify(new_booking), 201
 
+
+
     return jsonify({"error" : "slot not found"}), 404
 
-@app.route("/bookings", methods=["GET"])
-def
+# @app.route("/bookings", methods=["GET"])
+# def view_bookings():
+
+
 
 
 
