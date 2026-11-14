@@ -1,12 +1,20 @@
 from flask import Flask, jsonify, request
 from datetime import datetime, timezone
 app = Flask(__name__)
-
+API_KEY = "loni-secret-api-key-123"
 slots = []
 bookings = []
 
+def require_api_key():
+    key = request.headers.get("X-API-KEY")
+    if key != API_KEY:
+        return jsonify({"error" : "Unauthorized"}), 401
+    return None
 @app.route("/")
 def home():
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
     return jsonify({
         "message" : "Clinic Booking API",
         "status" : "Level 1 Under Construction"
@@ -14,6 +22,10 @@ def home():
 
 @app.route("/slots", methods=["GET"])
 def get_slots():
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+
     result = []
 
     for slot in slots:
@@ -32,6 +44,10 @@ def get_slots():
 
 @app.route("/reset", methods=["POST"])
 def reset_slots():
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+
     data = request.get_json()
 
     if not data or "slots" not in data:
@@ -43,6 +59,10 @@ def reset_slots():
 
 @app.route("/bookings", methods=["POST"])
 def input_bookings():
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+
     data = request.get_json()
 
     if not data or "slot_id" not in data or "name" not in data or "email"not in data:
@@ -74,6 +94,10 @@ def input_bookings():
 
 @app.route("/bookings/<booking_id>", methods=["GET"])
 def view_bookings(booking_id):
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+
     for booking in bookings:
         if booking["id"] == booking_id:
             return jsonify(booking), 200
