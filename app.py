@@ -4,6 +4,7 @@ app = Flask(__name__)
 API_KEY = "loni-secret-api-key-123"
 slots = []
 bookings = []
+idempotency = {}
 
 def require_api_key():
     key = request.headers.get("X-API-key")
@@ -114,9 +115,27 @@ def del_bookings(booking_id):
         return auth_error
     for booking in bookings:
         if booking["id"] == booking_id:
-            booking["status"] = "Cancelled"
+            booking["status"] = "cancelled"
             return jsonify({"success" : "your booked slot has been cancelled"}), 200
     return jsonify({"error" : "booking does not exist"}), 404
+
+
+@app.route("/bookings", methods=["GET"])
+def email_bookings():
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+    email_list = []
+    email = request.args.get("email")
+
+    if not email:
+        return jsonify({"error" : "email is required"}), 400
+    for booking in bookings:
+        if booking["email"] == email:
+            email_list.append(booking)
+        return jsonify({"error" : "email does not exist"}), 404
+    return jsonify({"email owned bookings" : email_list}), 200
+
 
 
 
