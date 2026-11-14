@@ -57,7 +57,7 @@ def input_bookings():
                 if booking["slot_id"] == data["slot_id"] and booking["status"] == "confirmed":
                     return jsonify({"error": "slot already taken"}), 409
             new_booking = {
-                "id" : f"User_{len(bookings) + 1}",
+                "id" : f"user_{len(bookings) + 1}",
                 "slot_id" : data["slot_id"],
                 "name" : data["name"],
                 "email" : data["email"],
@@ -72,8 +72,13 @@ def input_bookings():
 
     return jsonify({"error" : "slot not found"}), 404
 
-@app.route("/bookings", methods=["GET"])
-def view_bookings():
+@app.route("/bookings/<booking_id>", methods=["GET"])
+def view_bookings(booking_id):
+    for booking in bookings:
+        if booking["id"] == booking_id:
+            return jsonify(booking), 200
+
+    return jsonify({"error" : "booking not found"}), 404
 
 
 
