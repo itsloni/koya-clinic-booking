@@ -72,8 +72,8 @@ def input_bookings():
 
     return jsonify({"error" : "slot not found"}), 404
 
-# @app.route("/bookings", methods=["GET"])
-# def view_bookings():
+@app.route("/bookings", methods=["GET"])
+def view_bookings():
 
 
 
