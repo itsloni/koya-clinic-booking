@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
 from datetime import datetime, timezone
+from time import time
 app = Flask(__name__)
 API_KEY = "loni-secret-api-key-123"
 slots = []
 bookings = []
 idempotency_keys = {}
+rate_time = {}
 
 def require_api_key():
     key = request.headers.get("X-API-key")
@@ -63,14 +65,17 @@ def input_bookings():
     auth_error = require_api_key()
     if auth_error:
         return auth_error
-    idempotency_key = request.headers.get("idempotency-key")
-    if data in idempotency_keys
+    idem_key = request.headers.get("idempotency-key")
+    if idem_key and idem_key in idempotency_keys:
+        return jsonify(idempotency_keys[idem_key])
+
+
     data = request.get_json()
 
     if (not data or
         "slot_id" not in data or not data["slot_id"] or
         "name" not in data or not data["name"] or
-        "email" not in data or not data["slot_id"]):
+        "email" not in data or not data["email"]):
 
         return jsonify({"error" : "bookings data is required"}), 400
 
@@ -91,8 +96,9 @@ def input_bookings():
             }
 
             bookings.append(new_booking)
+            if idem_key:
+                idempotency_keys[idem_key] = new_booking
             return jsonify(new_booking), 201
-
 
 
     return jsonify({"error" : "slot not found"}), 404
@@ -127,6 +133,10 @@ def email_bookings():
     if auth_error:
         return auth_error
     email_list = []
+    page = request.args.get("page", 1)
+    limit = request.args.get("limit", 10)
+    page = int(page)
+    limit = int(limit)
     email = request.args.get("email")
 
     if not email:
@@ -136,8 +146,15 @@ def email_bookings():
             email_list.append(booking)
     if not email_list:
         return jsonify({"error" : "email does not exist"}), 404
-
-    return jsonify({"email owned bookings" : email_list}), 200
+    start = (page - 1) * limit
+    end = start + limit
+    paginated_list = email_list[start:end]
+    return jsonify({
+        "page" : page,
+        "limit" : limit,
+        "total" : f"{len(email_list)}",
+        "bookings" : paginated_list
+    }), 200
 
 
 
