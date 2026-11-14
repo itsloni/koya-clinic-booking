@@ -107,6 +107,21 @@ def view_bookings(booking_id):
 
     return jsonify({"error" : "booking not found"}), 404
 
+@app.route("/bookings/<booking_id>", methods=["DELETE"])
+def del_bookings(booking_id):
+    auth_error = require_api_key()
+    if auth_error:
+        return auth_error
+    for booking in bookings:
+        if booking["id"] == booking_id:
+            booking["status"] = "Cancelled"
+            return jsonify({"success" : "your booked slot has been cancelled"}), 200
+    return jsonify({"error" : "booking does not exist"}), 404
+
+
+
+
+
 
 
 
