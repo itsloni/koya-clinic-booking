@@ -6,7 +6,7 @@ slots = []
 bookings = []
 
 def require_api_key():
-    key = request.headers.get("X-API-KEY")
+    key = request.headers.get("X-API-key")
     if key != API_KEY:
         return jsonify({"error" : "Unauthorized"}), 401
     return None
@@ -65,7 +65,10 @@ def input_bookings():
 
     data = request.get_json()
 
-    if not data or "slot_id" not in data or "name" not in data or "email"not in data:
+    if (not data or
+        "slot_id" not in data or not data["slot_id"] or
+        "name" not in data or not data["name"] or
+        "email" not in data or not data["slot_id"]):
 
         return jsonify({"error" : "bookings data is required"}), 400
 
