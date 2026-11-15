@@ -66,6 +66,14 @@ def input_bookings():
     if auth_error:
         return auth_error
     data = request.get_json()
+
+    if (not data or
+        "slot_id" not in data or not data["slot_id"] or
+        "name" not in data or not data["name"] or
+        "email" not in data or not data["email"]):
+
+        return jsonify({"error" : "bookings data is required"}), 400
+
     data["email"] = data["email"].strip().lower()
     data["name"] = data["name"].strip()
     idem_key = request.headers.get("idempotency-key")
@@ -91,13 +99,6 @@ def input_bookings():
 
     attempts.append(current_time)
     rate_limit[email] = attempts
-
-    if (not data or
-        "slot_id" not in data or not data["slot_id"] or
-        "name" not in data or not data["name"] or
-        "email" not in data or not data["email"]):
-
-        return jsonify({"error" : "bookings data is required"}), 400
 
     for slot in slots:
         if data["slot_id"] == slot["id"]:
