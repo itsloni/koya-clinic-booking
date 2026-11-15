@@ -11,19 +11,13 @@ idempotency_keys = {}
 rate_limit = {}
 
 def require_api_key():
-    key = request.headers.get("X-API-key")
+    key = request.headers.get("X-API-Key")
     if key != API_KEY:
         return jsonify({"error" : "Unauthorized"}), 401
     return None
 @app.route("/")
 def home():
-    auth_error = require_api_key()
-    if auth_error:
-        return auth_error
-    return jsonify({
-        "message" : "Clinic Booking API",
-        "status" : "Level 1 Under Construction"
-    })
+    return app.send_static_file("index.html")
 
 @app.route("/slots", methods=["GET"])
 def get_slots():
