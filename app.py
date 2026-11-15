@@ -1,7 +1,9 @@
 from flask import Flask, jsonify, request
 from datetime import datetime, timezone
 from time import time
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 API_KEY = "loni-secret-api-key-123"
 slots = []
 bookings = []
