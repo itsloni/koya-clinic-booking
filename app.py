@@ -86,7 +86,7 @@ def input_bookings():
 
     attempts = [t for t in attempts if current_time - t < 60]
 
-    if len(attempts) > 5:
+    if len(attempts) >= 5:
         return jsonify({"error" : "Too many requests"}), 429, {"Retry-After" : "60"}
 
     attempts.append(current_time)
